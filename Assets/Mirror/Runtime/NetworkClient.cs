@@ -66,9 +66,10 @@ namespace Mirror
         public static bool isConnected => connectState == ConnectState.Connected;
 
         /// <summary>
-        /// NetworkClient can connect to local server in host mode too
+        /// NetworkClient can connect to local server in host mode too.
+        /// It's a local client if the connectionId is 0.
         /// </summary>
-        public static bool isLocalClient => connection is ULocalConnectionToServer;
+        public static bool isLocalClient => connection != null && connection.connectionId == 0;
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
@@ -114,22 +115,15 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
 
-            RegisterSystemHandlers(true);
-
-            connectState = ConnectState.Connected;
-
-            // create local connection objects and connect them
-            ULocalConnectionToServer connectionToServer = new ULocalConnectionToServer();
-            ULocalConnectionToClient connectionToClient = new ULocalConnectionToClient();
-            connectionToServer.connectionToClient = connectionToClient;
-            connectionToClient.connectionToServer = connectionToServer;
-
-            connection = connectionToServer;
-            connection.SetHandlers(handlers);
+            // truly connect to the local server
+            Connect("localhost");
 
             // create server connection to local client
+            // note: connectionId '0' is assumed for local connection.
+            NetworkConnectionToClient connectionToClient = new NetworkConnectionToClient(0);
             NetworkServer.SetLocalConnection(connectionToClient);
         }
+
         /// <summary>
         /// connect host mode
         /// </summary>
@@ -270,19 +264,10 @@ namespace Mirror
 
         internal static void Update()
         {
-            // local connection?
-            if (connection is ULocalConnectionToServer localConnection)
+            // only update things while connected
+            if (active && connectState == ConnectState.Connected)
             {
-                localConnection.Update();
-            }
-            // remote connection?
-            else
-            {
-                // only update things while connected
-                if (active && connectState == ConnectState.Connected)
-                {
-                    NetworkTime.UpdateClient();
-                }
+                NetworkTime.UpdateClient();
             }
         }
 

@@ -175,7 +175,7 @@ namespace Mirror
         }
 
         // called by LocalClient to add itself. dont call directly.
-        internal static void SetLocalConnection(ULocalConnectionToClient conn)
+        internal static void SetLocalConnection(NetworkConnectionToClient conn)
         {
             if (localConnection != null)
             {
@@ -225,19 +225,14 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                // filter and then send to all internet connections at once
+                // send to all connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
                 //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
                 bool result = true;
                 foreach (KeyValuePair<int, NetworkConnection> kvp in identity.observers)
                 {
-                    // use local connection directly because it doesn't send via transport
-                    if (kvp.Value is ULocalConnectionToClient)
-                        result &= localConnection.Send(segment);
-                    // gather all internet connections
-                    else
-                        connectionIdsCache.Add(kvp.Key);
+                    connectionIdsCache.Add(kvp.Key);
                 }
 
                 // send to all internet connections at once
@@ -291,19 +286,14 @@ namespace Mirror
             MessagePacker.Pack(msg, writer);
             ArraySegment<byte> segment = writer.ToArraySegment();
 
-            // filter and then send to all internet connections at once
+            // send to all connections at once
             // -> makes code more complicated, but is HIGHLY worth it to
             //    avoid allocations, allow for multicast, etc.
             connectionIdsCache.Clear();
             bool result = true;
             foreach (KeyValuePair<int, NetworkConnectionToClient> kvp in connections)
             {
-                // use local connection directly because it doesn't send via transport
-                if (kvp.Value is ULocalConnectionToClient)
-                    result &= localConnection.Send(segment);
-                // gather all internet connections
-                else
-                    connectionIdsCache.Add(kvp.Key);
+                connectionIdsCache.Add(kvp.Key);
             }
 
             // send to all internet connections at once
@@ -366,7 +356,7 @@ namespace Mirror
                 MessagePacker.Pack(msg, writer);
                 ArraySegment<byte> segment = writer.ToArraySegment();
 
-                // filter and then send to all internet connections at once
+                // filter and then send to all connections at once
                 // -> makes code more complicated, but is HIGHLY worth it to
                 //    avoid allocations, allow for multicast, etc.
                 connectionIdsCache.Clear();
@@ -378,13 +368,7 @@ namespace Mirror
                     if ((!isOwner || includeOwner) && kvp.Value.isReady)
                     {
                         count++;
-
-                        // use local connection directly because it doesn't send via transport
-                        if (kvp.Value is ULocalConnectionToClient)
-                            result &= localConnection.Send(segment);
-                        // gather all internet connections
-                        else
-                            connectionIdsCache.Add(kvp.Key);
+                        connectionIdsCache.Add(kvp.Key);
                     }
                 }
 
@@ -819,8 +803,8 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
-            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
+            // special case, we are in host mode,  set hasAuthority to true so that all overrides see it
+            if (conn.connectionId == 0)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -876,8 +860,8 @@ namespace Mirror
 
             //NOTE: DONT set connection ready.
 
-            // special case,  we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn is ULocalConnectionToClient)
+            // special case, we are in host mode,  set hasAuthority to true so that all overrides see it
+            if (conn.connectionId == 0)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -1032,9 +1016,10 @@ namespace Mirror
             identity.Reset();
             identity.connectionToClient = (NetworkConnectionToClient)ownerConnection;
 
-            // special case to make sure hasAuthority is set
+            // special case in host mode to make sure hasAuthority is set
             // on start server in host mode
-            if (ownerConnection is ULocalConnectionToClient)
+            // note: ownerConnection is 'null' if spawned without authority
+            if (ownerConnection?.connectionId == 0)
                 identity.hasAuthority = true;
 
             identity.OnStartServer();
