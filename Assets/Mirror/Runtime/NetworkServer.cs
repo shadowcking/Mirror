@@ -26,7 +26,22 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
-        public static NetworkConnectionToClient localConnection { get; private set; }
+        public static NetworkConnectionToClient localConnection
+        {
+            get
+            {
+                // server to local client is always the one with connId == 0
+                if (connections.TryGetValue(0, out NetworkConnectionToClient conn))
+                    return conn;
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// <para>True is a local client is currently active on the server.</para>
+        /// <para>This will be true for "Hosts" on hosted server games.</para>
+        /// </summary>
+        public static bool localClientActive => localConnection != null;
 
         /// <summary>
         /// <para>True is a local client is currently active on the server.</para>
@@ -172,29 +187,6 @@ namespace Mirror
         public static bool RemoveConnection(int connectionId)
         {
             return connections.Remove(connectionId);
-        }
-
-        // called by LocalClient to add itself. dont call directly.
-        internal static void SetLocalConnection(NetworkConnectionToClient conn)
-        {
-            if (localConnection != null)
-            {
-                Debug.LogError("Local Connection already exists");
-                return;
-            }
-
-            localConnection = conn;
-        }
-
-        internal static void RemoveLocalConnection()
-        {
-            if (localConnection != null)
-            {
-                localConnection.Disconnect();
-                localConnection.Dispose();
-                localConnection = null;
-            }
-            RemoveConnection(0);
         }
 
         internal static void ActivateLocalClientScene()
@@ -405,8 +397,6 @@ namespace Mirror
         public static void DisconnectAll()
         {
             DisconnectAllConnections();
-            localConnection = null;
-
             active = false;
         }
 
@@ -1222,7 +1212,7 @@ namespace Mirror
             SendToObservers(identity, msg);
 
             identity.ClearObservers();
-            if (NetworkClient.active && localClientActive)
+            if (NetworkClient.active)
             {
                 identity.OnNetworkDestroy();
             }

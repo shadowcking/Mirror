@@ -117,20 +117,6 @@ namespace Mirror
 
             // truly connect to the local server
             Connect("localhost");
-
-            // create server connection to local client
-            // note: connectionId '0' is assumed for local connection.
-            NetworkConnectionToClient connectionToClient = new NetworkConnectionToClient(0);
-            NetworkServer.SetLocalConnection(connectionToClient);
-        }
-
-        /// <summary>
-        /// connect host mode
-        /// </summary>
-        internal static void ConnectLocalServer()
-        {
-            NetworkServer.OnConnected(NetworkServer.localConnection);
-            NetworkServer.localConnection.Send(new ConnectMessage());
         }
 
         static void InitializeTransportHandlers()
@@ -189,24 +175,12 @@ namespace Mirror
             connectState = ConnectState.Disconnected;
             ClientScene.HandleClientDisconnect(connection);
 
-            // local or remote connection?
-            if (isLocalClient)
+            if (connection != null)
             {
-                if (isConnected)
-                {
-                    NetworkServer.localConnection.Send(new DisconnectMessage());
-                }
-                NetworkServer.RemoveLocalConnection();
-            }
-            else
-            {
-                if (connection != null)
-                {
-                    connection.Disconnect();
-                    connection.Dispose();
-                    connection = null;
-                    RemoveTransportHandlers();
-                }
+                connection.Disconnect();
+                connection.Dispose();
+                connection = null;
+                RemoveTransportHandlers();
             }
         }
 
