@@ -8,6 +8,7 @@ namespace Mirror
     {
         public NetworkConnectionToClient(int networkConnectionId) : base(networkConnectionId)
         {
+            Debug.LogWarning("ConnToClient created: " + networkConnectionId);
         }
 
         public override string address => Transport.activeTransport.ServerGetClientAddress(connectionId);
