@@ -67,9 +67,8 @@ namespace Mirror
 
         /// <summary>
         /// NetworkClient can connect to local server in host mode too.
-        /// It's a local client if the connectionId is 0.
         /// </summary>
-        public static bool isLocalClient => connection != null && connection.connectionId == 0;
+        public static bool isLocalClient { get; internal set; }
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
@@ -117,6 +116,9 @@ namespace Mirror
 
             // truly connect to the local server
             Connect("localhost");
+
+            // let the client know that it's a local host connection
+            isLocalClient = true;
         }
 
         static void InitializeTransportHandlers()
