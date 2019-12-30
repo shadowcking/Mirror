@@ -1215,7 +1215,7 @@ namespace Mirror
             SendToObservers(identity, msg);
 
             identity.ClearObservers();
-            if (NetworkClient.active)
+            if (NetworkClient.active && localClientActive)
             {
                 identity.OnNetworkDestroy();
             }
