@@ -68,7 +68,7 @@ namespace Mirror
         /// <summary>
         /// NetworkClient can connect to local server in host mode too.
         /// </summary>
-        public static bool isLocalClient { get; internal set; }
+        public static bool isLocalClient => connection != null && connection.isLocalConnection;
 
         /// <summary>
         /// Connect client to a NetworkServer instance.
@@ -118,7 +118,7 @@ namespace Mirror
             Connect("localhost");
 
             // let the client know that it's a local host connection
-            isLocalClient = true;
+            connection.isLocalConnection = true;
 
             // let the server know that the next connection is the local one
             NetworkServer.expectLocalConnection = true;

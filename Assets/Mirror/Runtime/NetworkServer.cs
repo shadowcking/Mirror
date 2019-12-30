@@ -29,8 +29,7 @@ namespace Mirror
         //
         // IMPORTANT: localConnection's connectionId depends on transport. it is
         //            NOT guaranteed to be '0' anymore. if you want to know if a
-        //            connection is the local connection, compare with
-        //            NetworkServer.localConnection!
+        //            connection is the local connection, check .isLocalConnection!
         public static NetworkConnectionToClient localConnection { get; private set; }
 
         /// <summary>
@@ -476,6 +475,7 @@ namespace Mirror
                 if (expectLocalConnection)
                 {
                     Debug.Log("NetworkServer.OnConnected: found expected local connection: " + connectionId);
+                    conn.isLocalConnection = true;
                     localConnection = conn;
                     expectLocalConnection = false;
                 }
@@ -804,7 +804,7 @@ namespace Mirror
             identity.SetClientOwner(conn);
 
             // special case, we are in host mode, set hasAuthority to true so that all overrides see it
-            if (conn == localConnection)
+            if (conn.isLocalConnection)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -861,7 +861,7 @@ namespace Mirror
             //NOTE: DONT set connection ready.
 
             // special case, we are in host mode, set hasAuthority to true so that all overrides see it
-            if (conn == localConnection)
+            if (conn.isLocalConnection)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -1019,7 +1019,7 @@ namespace Mirror
             // special case in host mode to make sure hasAuthority is set
             // on start server in host mode
             // note: ownerConnection is 'null' if spawned without authority
-            if (ownerConnection != null && ownerConnection == localConnection)
+            if (ownerConnection != null && ownerConnection.isLocalConnection)
                 identity.hasAuthority = true;
 
             identity.OnStartServer();
