@@ -111,6 +111,9 @@ namespace Mirror
             dontListen = false;
             active = false;
 
+            // clear local connection so we can set it again next time
+            localConnection = null;
+
             NetworkIdentity.ResetNextNetworkId();
         }
 
