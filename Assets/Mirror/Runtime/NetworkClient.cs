@@ -191,6 +191,13 @@ namespace Mirror
 
             if (connection != null)
             {
+                // clear server's local connection if we are a local client
+                if (isLocalClient)
+                {
+                    NetworkServer.localConnection = null;
+                }
+
+
                 connection.Disconnect();
                 connection.Dispose();
                 connection = null;

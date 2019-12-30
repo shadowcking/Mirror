@@ -30,7 +30,7 @@ namespace Mirror
         // IMPORTANT: localConnection's connectionId depends on transport. it is
         //            NOT guaranteed to be '0' anymore. if you want to know if a
         //            connection is the local connection, check .isLocalConnection!
-        public static NetworkConnectionToClient localConnection { get; private set; }
+        public static NetworkConnectionToClient localConnection { get; internal set; }
 
         /// <summary>
         /// <para>True is a local client is currently active on the server.</para>
@@ -104,9 +104,6 @@ namespace Mirror
             }
             dontListen = false;
             active = false;
-
-            // clear local connection so we can set it again next time
-            localConnection = null;
 
             NetworkIdentity.ResetNextNetworkId();
         }
