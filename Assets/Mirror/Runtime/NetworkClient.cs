@@ -130,7 +130,7 @@ namespace Mirror
             connection.isLocalConnection = true;
 
             // let the server know that the next connection is the local one
-            NetworkServer.expectLocalConnection = true;
+            NetworkServer.pendingLocalConnection = true;
         }
 
         static void InitializeTransportHandlers()

@@ -41,7 +41,7 @@ namespace Mirror
         /// <summary>
         /// Let the server know if the next connection is supposed to be the host's connection.
         /// </summary>
-        internal static bool expectLocalConnection;
+        internal static bool pendingLocalConnection;
 
         /// <summary>
         /// A list of local connections on the server.
@@ -442,7 +442,7 @@ namespace Mirror
 
             // are we expecting a local connection, but a local connection was
             // already set? then something is wrong!
-            if (expectLocalConnection && localConnection != null)
+            if (pendingLocalConnection && localConnection != null)
             {
                 Debug.LogError("Server.OnConnected: expecting local connection, but a local connection was already set.");
                 Transport.activeTransport.ServerDisconnect(connectionId);
@@ -469,12 +469,12 @@ namespace Mirror
                 OnConnected(conn);
 
                 // was this the connection to the local host? then save it.
-                if (expectLocalConnection)
+                if (pendingLocalConnection)
                 {
                     Debug.Log("NetworkServer.OnConnected: found expected local connection: " + connectionId);
                     conn.isLocalConnection = true;
                     localConnection = conn;
-                    expectLocalConnection = false;
+                    pendingLocalConnection = false;
                 }
 
                 Debug.LogWarning("NetworkServer OnConnected: " + connectionId + " local=" + conn.isLocalConnection);
