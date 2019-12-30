@@ -468,13 +468,10 @@ namespace Mirror
                 // was this the connection to the local host? then save it.
                 if (pendingLocalConnection)
                 {
-                    Debug.Log("NetworkServer.OnConnected: found expected local connection: " + connectionId);
                     conn.isLocalConnection = true;
                     localConnection = conn;
                     pendingLocalConnection = false;
                 }
-
-                Debug.LogWarning("NetworkServer OnConnected: " + connectionId + " local=" + conn.isLocalConnection);
             }
             else
             {
