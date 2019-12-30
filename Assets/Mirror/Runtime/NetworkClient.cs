@@ -115,7 +115,16 @@ namespace Mirror
             if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
 
             // truly connect to the local server
-            Connect("localhost");
+            RegisterSystemHandlers(true); // IMPORTANT: true for host mode!
+            Transport.activeTransport.enabled = true;
+            InitializeTransportHandlers();
+
+            connectState = ConnectState.Connecting;
+            Transport.activeTransport.ClientConnect("localhost");
+
+            // setup all the handlers
+            connection = new NetworkConnectionToServer();
+            connection.SetHandlers(handlers);
 
             // let the client know that it's a local host connection
             connection.isLocalConnection = true;
