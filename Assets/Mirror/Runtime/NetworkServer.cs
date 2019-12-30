@@ -482,6 +482,8 @@ namespace Mirror
                     localConnection = conn;
                     expectLocalConnection = false;
                 }
+
+                Debug.LogWarning("NetworkServer OnConnected: " + connectionId + " local=" + conn.isLocalConnection);
             }
             else
             {
