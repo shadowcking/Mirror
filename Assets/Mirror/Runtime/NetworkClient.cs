@@ -252,19 +252,11 @@ namespace Mirror
 
         internal static void Update()
         {
-            // local connection?
-            if (connection != null && connection.isLocalConnection)
+            // only update NetworkTime while connected and while not a host
+            // (in other words, never call UpdateClient on a server!)
+            if (active && connectState == ConnectState.Connected && !NetworkServer.active)
             {
-
-            }
-            // remove connection?
-            else
-            {
-                // only update NetworkTime while connected and while not a host
-                if (active && connectState == ConnectState.Connected)
-                {
-                    NetworkTime.UpdateClient();
-                }
+                NetworkTime.UpdateClient();
             }
         }
 
