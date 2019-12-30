@@ -119,6 +119,9 @@ namespace Mirror
 
             // let the client know that it's a local host connection
             isLocalClient = true;
+
+            // let the server know that the next connection is the local one
+            NetworkServer.expectLocalConnection = true;
         }
 
         static void InitializeTransportHandlers()

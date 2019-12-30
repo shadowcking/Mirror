@@ -26,16 +26,7 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
-        public static NetworkConnectionToClient localConnection
-        {
-            get
-            {
-                // server to local client is always the one with connId == 0
-                if (connections.TryGetValue(0, out NetworkConnectionToClient conn))
-                    return conn;
-                return null;
-            }
-        }
+        public static NetworkConnectionToClient localConnection { get; private set; }
 
         /// <summary>
         /// <para>True is a local client is currently active on the server.</para>
@@ -48,6 +39,11 @@ namespace Mirror
         /// <para>This will be true for "Hosts" on hosted server games.</para>
         /// </summary>
         public static bool localClientActive => localConnection != null;
+
+        /// <summary>
+        /// Let the server know if the next connection is supposed to be the host's connection.
+        /// </summary>
+        internal static bool expectLocalConnection;
 
         /// <summary>
         /// A list of local connections on the server.
@@ -443,10 +439,11 @@ namespace Mirror
         {
             if (LogFilter.Debug) Debug.Log("Server accepted client:" + connectionId);
 
-            // connectionId needs to be > 0 because 0 is reserved for local player
-            if (connectionId <= 0)
+            // are we expecting a local connection, but a local connection was
+            // already set? then something is wrong!
+            if (expectLocalConnection && localConnection != null)
             {
-                Debug.LogError("Server.HandleConnect: invalid connectionId: " + connectionId + " . Needs to be >0, because 0 is reserved for local player.");
+                Debug.LogError("Server.OnConnected: expecting local connection, but a local connection was already set.");
                 Transport.activeTransport.ServerDisconnect(connectionId);
                 return;
             }
@@ -469,6 +466,14 @@ namespace Mirror
                 // add connection
                 NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
+
+                // was this the connection to the local host? then save it.
+                if (expectLocalConnection)
+                {
+                    Debug.Log("NetworkServer.OnConnected: found expected local connection: " + connectionId);
+                    localConnection = conn;
+                    expectLocalConnection = false;
+                }
             }
             else
             {
