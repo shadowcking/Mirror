@@ -39,12 +39,6 @@ namespace Mirror
         public static bool localClientActive => localConnection != null;
 
         /// <summary>
-        /// <para>True is a local client is currently active on the server.</para>
-        /// <para>This will be true for "Hosts" on hosted server games.</para>
-        /// </summary>
-        public static bool localClientActive => localConnection != null;
-
-        /// <summary>
         /// Let the server know if the next connection is supposed to be the host's connection.
         /// </summary>
         internal static bool expectLocalConnection;
