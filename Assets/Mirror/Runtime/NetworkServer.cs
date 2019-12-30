@@ -26,6 +26,11 @@ namespace Mirror
         // original HLAPI has .localConnections list with only m_LocalConnection in it
         // (for backwards compatibility because they removed the real localConnections list a while ago)
         // => removed it for easier code. use .localConnection now!
+        //
+        // IMPORTANT: localConnection's connectionId depends on transport. it is
+        //            NOT guaranteed to be '0' anymore. if you want to know if a
+        //            connection is the local connection, compare with
+        //            NetworkServer.localConnection!
         public static NetworkConnectionToClient localConnection { get; private set; }
 
         /// <summary>
@@ -798,8 +803,8 @@ namespace Mirror
             // Set the connection on the NetworkIdentity on the server, NetworkIdentity.SetLocalPlayer is not called on the server (it is on clients)
             identity.SetClientOwner(conn);
 
-            // special case, we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn.connectionId == 0)
+            // special case, we are in host mode, set hasAuthority to true so that all overrides see it
+            if (conn == localConnection)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -855,8 +860,8 @@ namespace Mirror
 
             //NOTE: DONT set connection ready.
 
-            // special case, we are in host mode,  set hasAuthority to true so that all overrides see it
-            if (conn.connectionId == 0)
+            // special case, we are in host mode, set hasAuthority to true so that all overrides see it
+            if (conn == localConnection)
             {
                 identity.hasAuthority = true;
                 ClientScene.InternalAddPlayer(identity);
@@ -1014,7 +1019,7 @@ namespace Mirror
             // special case in host mode to make sure hasAuthority is set
             // on start server in host mode
             // note: ownerConnection is 'null' if spawned without authority
-            if (ownerConnection?.connectionId == 0)
+            if (ownerConnection != null && ownerConnection == localConnection)
                 identity.hasAuthority = true;
 
             identity.OnStartServer();
