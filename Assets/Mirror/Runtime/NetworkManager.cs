@@ -478,7 +478,10 @@ namespace Mirror
             //             isn't called in host mode!
             NetworkClient.ConnectHost();
 
-
+            // IMPORTANT: FinishStartHost isn't called directly here because
+            //            ConnectHost won't connect immediately. the connect
+            //            attempt has to go through the transport first, which
+            //            might take a while.
         }
 
         /// <summary>
