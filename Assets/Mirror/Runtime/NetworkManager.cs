@@ -427,9 +427,6 @@ namespace Mirror
             // the transport connected to the server, and the server's
             // OnConnected event was called.
             //
-            // TODO SetupLocalConnection is not synchronous. we aren't truly
-            // connected until it all went through transport
-
             // NetworkClient.Connect needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
             // -> this sets NetworkServer.localConnection.
