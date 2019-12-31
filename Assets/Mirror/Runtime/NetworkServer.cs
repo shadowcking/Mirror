@@ -472,6 +472,11 @@ namespace Mirror
                     conn.isLocalConnection = true;
                     localConnection = conn;
                     pendingLocalConnection = false;
+
+                    // finish the StartHost call now that we have set up the
+                    // connection
+                    // TODO do the scene change in netman and just call SpawnObjects here later
+                    NetworkManager.singleton.FinishStartHost();
                 }
             }
             else
