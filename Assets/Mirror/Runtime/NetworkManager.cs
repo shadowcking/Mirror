@@ -407,10 +407,6 @@ namespace Mirror
             NetworkServer.ActivateLocalClientScene();
             RegisterClientMessages();
 
-            // ConnectLocalServer needs to be called AFTER RegisterClientMessages
-            // (https://github.com/vis2k/Mirror/pull/1249/)
-            NetworkClient.ConnectLocalServer();
-
             OnStartClient();
         }
 
