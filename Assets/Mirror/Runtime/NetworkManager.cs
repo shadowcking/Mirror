@@ -414,6 +414,26 @@ namespace Mirror
             OnStartClient();
         }
 
+        // finish the StartHost process after the connection attempt went through
+        // the transport
+        internal void FinishStartHost()
+        {
+            // scene change needed? then change scene and spawn afterwards.
+            if (IsServerOnlineSceneChangeNeeded())
+            {
+                ServerChangeScene(onlineScene);
+            }
+            // otherwise spawn directly
+            else
+            {
+                NetworkServer.SpawnObjects();
+            }
+
+            // connect client and call OnStartClient AFTER any possible server
+            // scene changes.
+            StartHostClient();
+        }
+
 
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
@@ -462,20 +482,7 @@ namespace Mirror
             //             isn't called in host mode!
             NetworkClient.ConnectHost();
 
-            // scene change needed? then change scene and spawn afterwards.
-            if (IsServerOnlineSceneChangeNeeded())
-            {
-                ServerChangeScene(onlineScene);
-            }
-            // otherwise spawn directly
-            else
-            {
-                NetworkServer.SpawnObjects();
-            }
 
-            // connect client and call OnStartClient AFTER any possible server
-            // scene changes.
-            StartHostClient();
         }
 
         /// <summary>
