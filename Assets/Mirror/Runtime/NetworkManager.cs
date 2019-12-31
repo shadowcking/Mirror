@@ -429,6 +429,13 @@ namespace Mirror
             // is called after the server is actually properly started.
             OnStartHost();
 
+            // now connect the host. the host won't be connected until
+            // the transport connected to the server, and the server's
+            // OnConnected event was called.
+            //
+            // TODO SetupLocalConnection is not synchronous. we aren't truly
+            // connected until it all went through transport
+
             // ConnectHost needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
             // -> this sets NetworkServer.localConnection.
