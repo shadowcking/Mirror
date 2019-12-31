@@ -465,9 +465,10 @@ namespace Mirror
                 NetworkConnectionToClient conn = new NetworkConnectionToClient(connectionId);
                 OnConnected(conn);
 
-                // was this the connection to the local host? then save it.
+                // was this the connection to the local host?
                 if (pendingLocalConnection)
                 {
+                    // save the connection and set the local flag
                     conn.isLocalConnection = true;
                     localConnection = conn;
                     pendingLocalConnection = false;
