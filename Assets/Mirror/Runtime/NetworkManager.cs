@@ -331,13 +331,6 @@ namespace Mirror
         }
 
         /// <summary>
-        /// This starts a new server.
-        /// <para>This uses the networkPort property as the listen port.</para>
-        /// </summary>
-        /// <returns></returns>
-        public bool StartServer() => StartServerInternal(true);
-
-        /// <summary>
         /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
         /// <para>This makes the newly created client connect to the server immediately.</para>
         /// </summary>
@@ -421,7 +414,7 @@ namespace Mirror
             OnStartClient();
         }
 
-        
+
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
         /// <para>The client returned from StartHost() is a special "local" client that communicates to the in-process server using a message queue instead of the real network. But in almost all other cases, it can be treated as a normal client.</para>
