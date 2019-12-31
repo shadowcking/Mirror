@@ -334,7 +334,7 @@ namespace Mirror
         /// This starts a network client. It uses the networkAddress and networkPort properties as the address to connect to.
         /// <para>This makes the newly created client connect to the server immediately.</para>
         /// </summary>
-        public void StartClient()
+        public void StartClient(bool hostMode = false)
         {
             InitializeSingleton();
 
@@ -358,7 +358,7 @@ namespace Mirror
             }
             if (LogFilter.Debug) Debug.Log("NetworkManager StartClient address:" + networkAddress);
 
-            NetworkClient.Connect(networkAddress);
+            NetworkClient.Connect(networkAddress, hostMode);
 
             OnStartClient();
         }
@@ -393,23 +393,6 @@ namespace Mirror
             OnStartClient();
         }
 
-        void StartHostClient()
-        {
-            if (LogFilter.Debug) Debug.Log("NetworkManager ConnectLocalClient");
-
-            if (authenticator != null)
-            {
-                authenticator.OnStartClient();
-                authenticator.OnClientAuthenticated.AddListener(OnClientAuthenticated);
-            }
-
-            networkAddress = "localhost";
-            NetworkServer.ActivateLocalClientScene();
-            RegisterClientMessages();
-
-            OnStartClient();
-        }
-
         // finish the StartHost process after the connection attempt went through
         // the transport
         internal void FinishStartHost()
@@ -424,12 +407,7 @@ namespace Mirror
             {
                 NetworkServer.SpawnObjects();
             }
-
-            // connect client and call OnStartClient AFTER any possible server
-            // scene changes.
-            StartHostClient();
         }
-
 
         /// <summary>
         /// This starts a network "host" - a server and client in the same application.
@@ -476,15 +454,23 @@ namespace Mirror
             //
             //          -> localClientActive needs to be true, otherwise the hook
             //             isn't called in host mode!
-            NetworkClient.Connect("localhost", true);
-
-            // let the server know that the next connection is the local one
+            //
+            networkAddress = "localhost";
             NetworkServer.pendingLocalConnection = true;
+            StartClient(true);
+            NetworkServer.ActivateLocalClientScene();
 
             // IMPORTANT: FinishStartHost isn't called directly here because
             //            ConnectHost won't connect immediately. the connect
             //            attempt has to go through the transport first, which
             //            might take a while.
+            //
+            // IMPORTANT: FinishStartHost can change the server scene.
+            //            the client was already started and connected though,
+            //            so it's not clear if this has any negative side
+            //            effects. it should be fine because the server might
+            //            change a scene at runtime too.
+            //            TODO maybe change server scene before connecting?
         }
 
         /// <summary>
