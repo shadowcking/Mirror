@@ -452,7 +452,7 @@ namespace Mirror
             // TODO SetupLocalConnection is not synchronous. we aren't truly
             // connected until it all went through transport
 
-            // ConnectHost needs to be called BEFORE SpawnObjects:
+            // NetworkClient.Connect needs to be called BEFORE SpawnObjects:
             // https://github.com/vis2k/Mirror/pull/1249/
             // -> this sets NetworkServer.localConnection.
             // -> localConnection needs to be set before SpawnObjects because:
@@ -476,7 +476,10 @@ namespace Mirror
             //
             //          -> localClientActive needs to be true, otherwise the hook
             //             isn't called in host mode!
-            NetworkClient.ConnectHost();
+            NetworkClient.Connect("localhost", true);
+
+            // let the server know that the next connection is the local one
+            NetworkServer.pendingLocalConnection = true;
 
             // IMPORTANT: FinishStartHost isn't called directly here because
             //            ConnectHost won't connect immediately. the connect

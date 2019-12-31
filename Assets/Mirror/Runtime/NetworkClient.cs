@@ -111,15 +111,6 @@ namespace Mirror
             connection.SetHandlers(handlers);
         }
 
-        internal static void ConnectHost()
-        {
-            // reuse Connect function with host mode setup
-            Connect("localhost", true);
-
-            // let the server know that the next connection is the local one
-            NetworkServer.pendingLocalConnection = true;
-        }
-
         static void InitializeTransportHandlers()
         {
             Transport.activeTransport.OnClientConnected.AddListener(OnConnected);
