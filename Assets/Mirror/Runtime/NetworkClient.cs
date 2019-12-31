@@ -124,10 +124,8 @@ namespace Mirror
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
-            connection.SetHandlers(handlers);
-
-            // let the client know that it's a local host connection
             connection.isLocalConnection = true;
+            connection.SetHandlers(handlers);
 
             // let the server know that the next connection is the local one
             NetworkServer.pendingLocalConnection = true;
