@@ -74,11 +74,11 @@ namespace Mirror
         /// Connect client to a NetworkServer instance.
         /// </summary>
         /// <param name="address"></param>
-        public static void Connect(string address)
+        public static void Connect(string address, bool hostMode = false)
         {
             if (LogFilter.Debug) Debug.Log("Client Connect: " + address);
 
-            RegisterSystemHandlers(false);
+            RegisterSystemHandlers(hostMode);
             Transport.activeTransport.enabled = true;
             InitializeTransportHandlers();
 
@@ -87,6 +87,7 @@ namespace Mirror
 
             // setup all the handlers
             connection = new NetworkConnectionToServer();
+            connection.isLocalConnection = hostMode;
             connection.SetHandlers(handlers);
         }
 
@@ -112,20 +113,8 @@ namespace Mirror
 
         internal static void ConnectHost()
         {
-            if (LogFilter.Debug) Debug.Log("Client Connect Host to Server");
-
-            // truly connect to the local server
-            RegisterSystemHandlers(true); // IMPORTANT: true for host mode!
-            Transport.activeTransport.enabled = true;
-            InitializeTransportHandlers();
-
-            connectState = ConnectState.Connecting;
-            Transport.activeTransport.ClientConnect("localhost");
-
-            // setup all the handlers
-            connection = new NetworkConnectionToServer();
-            connection.isLocalConnection = true;
-            connection.SetHandlers(handlers);
+            // reuse Connect function with host mode setup
+            Connect("localhost", true);
 
             // let the server know that the next connection is the local one
             NetworkServer.pendingLocalConnection = true;
